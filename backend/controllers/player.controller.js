@@ -1,6 +1,6 @@
 import Player from "../models/playerDetails.model.js";
 import Match from "../models/match.model.js";
-import TrueSkillHistory from "../models/TrueSkillHistory.model.js";
+import TrueSkillHistory from "../models/trueSkillHistory.model.js";
 
 export async function getAllPlayers(req, res) {
     try {
