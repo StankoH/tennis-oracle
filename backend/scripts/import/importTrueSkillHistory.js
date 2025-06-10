@@ -4,7 +4,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import csv from 'csv-parser';
 import { disconnect } from 'mongoose';
-import TrueSkillHistory from '../../models/trueSkillHistory.model.js';
+import TrueSkillHistory from '../../models/TrueSkillHistory.model.js';
 import connectDB from '../../config/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
