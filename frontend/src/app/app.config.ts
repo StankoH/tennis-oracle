@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(withInterceptorsFromDi()),
     provideRouter(routes),
-    provideCharts(withDefaultRegisterables()), // ✅ ISPRAVLJENO
+    provideCharts(withDefaultRegisterables()),
     provideTranslateService({
       loader: {
         provide: TranslateLoader,
