@@ -1,0 +1,102 @@
+header, footer {
+    background-color: #e0e0e0;
+    color: #333;
+    padding: 1rem 2rem;
+  }
+  
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+  
+    .navbar-nav a {
+      color: #333;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      text-decoration: none;
+  
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  
+    .brand-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+    }
+  
+    button {
+      color: #333;
+      background: none;
+      border: none;
+      cursor: pointer;
+  
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  
+  footer {
+    text-align: center;
+    font-size: 0.9rem;
+  
+    a, button {
+      color: #333;
+      text-decoration: none;
+  
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }  
+
+  app-header {
+    background-color: #e0e0e0;
+  }
+  
+  app-header a,
+  app-header button {
+    text-decoration: none;
+    color: #333;
+  
+    &:hover {
+      text-decoration: underline;
+      color: #000;
+    }
+  }
+
+  .footer-custom {
+    position: relative;
+    height: 48px;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+  }
+  
+  .footer-left,
+  .footer-right {
+    flex: 1;
+  }
+  
+  .footer-left {
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .footer-right {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .footer-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }

@@ -1,0 +1,62 @@
+<footer class="footer-custom">
+  <!-- Lijevo: About Us -->
+  <div class="footer-left">
+    <button class="btn p-0" (click)="openAboutModal()">About Us</button>
+  </div>
+
+  <!-- Sredina: Contact Us -->
+  <div class="footer-center">
+    <button class="btn p-0" (click)="openContactModal()">Contact Us</button>
+  </div>
+
+  <!-- Desno: Copyright -->
+  <div class="footer-right text-muted">
+    © 2025 BonzoByte
+  </div>
+
+  <!-- BACKDROP -->
+  <div 
+    *ngIf="showAbout || showContact" 
+    class="modal-backdrop-custom"
+    (click)="closeModal()">
+  </div>
+
+  <!-- ABOUT MODAL -->
+  <div *ngIf="showAbout" class="modal-custom">
+    <div class="modal-header justify-content-center">
+      <h5 class="modal-title text-center w-100">About Us</h5>
+    </div>
+    <div class="modal-body">
+      <p>
+        BonzoByte je hobi-projekt stvoren iz ljubavi prema tenisu, tehnologiji i – da, psima 🐶.
+        Ovdje ćemo graditi, učiti i zabavljati se. Hvala što ste tu!
+      </p>
+      <hr />
+      <p class="fst-italic text-muted text-end" style="font-size: 0.9rem;">
+        “Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit…”
+      </p>
+    </div>
+  </div>
+
+  <!-- CONTACT MODAL -->
+  <div *ngIf="showContact" class="modal-custom">
+    <div class="modal-header justify-content-center">
+      <h5 class="modal-title text-center w-100">Contact Us</h5>
+    </div>
+    <div class="modal-body">
+      <p>
+        Imaš ideju, prijedlog, feedback ili jednostavno želiš reći bok?
+        <br />Javi nam se na:
+      </p>
+      <ul>
+        <li>Email: <a href="mailto:noreply@bonzobyte.com">noreplybonzobyte.com</a></li>
+        <li>Instagram: <a href="https://instagram.com/bonzobyte" target="_blank">bonzobyte</a></li>
+        <li>GitHub: <a href="https://github.com/bonzobyte" target="_blank">github.com/bonzobyte</a></li>
+      </ul>
+      <hr />
+      <p class="text-muted fst-italic text-end" style="font-size: 0.85rem;">
+        Odgovor garantiran unutar 42 godine 😉
+      </p>
+    </div>
+  </div>
+</footer>

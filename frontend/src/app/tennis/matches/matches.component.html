@@ -1,0 +1,163 @@
+<div class="matches-page-wrapper">
+  <!-- Loading Overlay -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner-wrapper">
+      <div class="spinner-border text-light" role="status"></div>
+      <p class="text-white mt-3">Loading...</p>
+    </div>
+  </div>
+
+  <!-- Sticky Navigation Bar -->
+  <div class="date-nav-sticky d-flex align-items-center justify-content-between mt-3 px-2">
+    <div class="pagination-center-wrapper mx-auto d-flex align-items-center gap-3">
+      <button (click)="previousDay()" class="link-button" [disabled]="isPrevDisabled">
+        <img src="assets/icons/left.svg" alt="Previous" class="arrow-icon" />
+      </button>
+
+      <input #dateInput type="date" class="custom-date-input"
+        [value]="formatDateForInput(currentDate) | date:'yyyy-MM-dd'" (change)="onDateInputChanged($event)"
+        [disabled]="matches.length === 0 || (isFiltered && filteredAvailableDates.length === 0)" />
+
+      <button (click)="nextDay()" class="link-button" [disabled]="isNextDisabled">
+        <img src="assets/icons/right.svg" alt="Next" class="arrow-icon" />
+      </button>
+    </div>
+
+    <!-- Filter Button -->
+    <div class="filter-button-wrapper">
+      <button (click)="openFilterModal()" class="link-button d-flex align-items-center gap-2">
+        <img src="assets/icons/filter.svg" alt="Filter" class="arrow-icon" />
+        Filter
+        <span *ngIf="isFiltered" class="badge bg-success ms-1">●</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Match Table -->
+  <div class="table-wrapper">
+    <div *ngIf="matches.length === 0 && isFiltered" class="text-center mt-3 p-3 rounded border"
+      style="background-color: #f8f9fa; color: #6c757d;">
+      No matches found for the selected filters.<br>
+      Please adjust your filter options or clear the filters to continue browsing.
+    </div>
+    <table class="match-table" *ngIf="matches.length > 0">
+      <thead>
+        <tr>
+          <th (click)="toggleSort('date')">Date <span *ngIf="sortField === 'date'">{{ sortDirection === 'asc' ? '↑' :
+              '↓' }}</span></th>
+          <th>Type</th>
+          <th (click)="toggleSort('tournament')">Tournament <span *ngIf="sortField === 'tournament'">{{ sortDirection
+              === 'asc' ? '↑' : '↓' }}</span></th>
+          <th>Level</th>
+          <th>Surface</th>
+          <th>Player 1</th>
+          <th>Player 2</th>
+          <th>Result</th>
+          <th>Result Details</th>
+          <th>Odds</th>
+          <th>&nbsp;&nbsp;Probability&nbsp;&nbsp;
+          <th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let match of matches">
+          <td>{{ getLocalizedDateTime(match.dateTime) }}</td>
+          <td>{{ match.tournamentType }}</td>
+          <td>
+            <span *ngIf="match.tournamentEventCountryISO2"
+              class="fi fi-{{ match.tournamentEventCountryISO2.toLowerCase() }}"></span>
+            <span class="clickable-text" (click)="openTournamentModal(match.tournamentEventTPId)">
+              {{ decodeHtmlEntities(removeRomanSuffix(match.tournamentEventName || '')) }}
+            </span>
+          </td>
+          <td>{{ match.tournamentLevel }}</td>
+          <td>{{ match.surface }}</td>
+          <td>
+            <span *ngIf="match.player1CountryISO2" class="fi fi-{{ match.player1CountryISO2.toLowerCase() }}"></span>
+            <span class="clickable-text" (click)="openPlayerModal(match.player1TPId)">
+              {{ decodeHtmlEntities(match.player1Name || '') }}
+            </span>
+          </td>
+          <td>
+            <span *ngIf="match.player2CountryISO2" class="fi fi-{{ match.player2CountryISO2.toLowerCase() }}"></span>
+            <span class="clickable-text" (click)="openPlayerModal(match.player2TPId)">
+              {{ decodeHtmlEntities(match.player2Name || '') }}
+            </span>
+          </td>
+          <td>{{ match.result }}</td>
+          <td>{{ match.resultDetails || '' }}</td>
+          <td class="odds-combined-cell"
+            *ngIf="match.player1Odds !== null && match.player2Odds !== null; else emptyOdds">
+            <span class="odds-left">{{ formatOdds(match.player1Odds) }}</span>
+            <span class="odds-separator">-</span>
+            <span class="odds-right">{{ formatOdds(match.player2Odds) }}</span>
+          </td>
+          <ng-template #emptyOdds>
+            <td class="odds-combined-cell">-</td>
+          </ng-template>
+
+          <td class="odds-combined-cell percentage-cell" *ngIf="match.winProbabilityPlayer1NN; else emptyProb">
+            <span class="odds-left">{{ formatOdds(match.winProbabilityPlayer1NN) }}</span>
+            <span class="odds-separator">-</span>
+            <span class="odds-right">{{ formatOdds(match.winProbabilityPlayer2NN) }}</span>
+          </td>
+          <ng-template #emptyProb>
+            <td class="odds-combined-cell">-</td>
+          </ng-template>
+
+          <td>
+            <small (click)="openMatchModal(match)">Details</small>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Modals -->
+    <app-match-modal *ngIf="selectedMatch" [match]="selectedMatch" (closed)="closeMatchModal()"></app-match-modal>
+    <app-player-modal *ngIf="selectedPlayer" [playerTPId]="selectedPlayer"
+      (closed)="closePlayerModal()"></app-player-modal>
+    <app-tournament-modal *ngIf="selectedTournament" [tournamentEventTPId]="selectedTournament"
+      (closed)="closeTournamentModal()"></app-tournament-modal>
+
+    <!-- Filter Modal -->
+    <app-match-filter-modal *ngIf="showFilterModal" [activeDateFilter]="activeDateFilter"
+      [activeFromDate]="activeFromDate" [activeToDate]="activeToDate" (closed)="closeFilterModal()" [minDate]="minDate"
+      [maxDate]="maxDate" [activeSurfaceIds]="activeSurfaceIds" [activeTournamentTypeIds]="activeTournamentTypeIds"
+      [activeTournamentLevelIds]="activeTournamentLevelIds"
+      (filterApplied)="onFilterApplied($event)" (resetFilter)="onFilterReset()"></app-match-filter-modal>
+
+    <div *ngIf="showDateWarning" class="modal-custom" (click)="closeDateWarningModal()">
+      <div class="modal-header justify-content-center" (click)="$event.stopPropagation()">
+        <h5 class="modal-title text-center w-100">Date Adjusted</h5>
+      </div>
+      <div class="modal-body" (click)="$event.stopPropagation()">
+        <p>
+          No matches are available outside the allowed range.
+          <br />
+          Allowed date range: <strong>{{ minDate | date: 'yyyy-MM-dd' }}</strong> to <strong>{{ maxDate | date:
+            'yyyy-MM-dd' }}</strong>.
+        </p>
+        <hr />
+        <div class="text-end">
+          <button class="btn btn-outline-secondary btn-sm" (click)="closeDateWarningModal()">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="showOutOfRangeModal" class="modal-custom">
+      <div class="modal-header justify-content-center">
+        <h5 class="modal-title text-center w-100">Invalid Date</h5>
+      </div>
+      <div class="modal-body">
+        <p>
+          The selected date is outside your active filter range.<br />
+          Please adjust your filter settings or clear the filter.
+        </p>
+        <hr />
+        <div class="text-end">
+          <button class="btn btn-outline-secondary btn-sm" (click)="showOutOfRangeModal = false">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

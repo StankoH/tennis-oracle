@@ -1,0 +1,91 @@
+<div class="modal-backdrop" appAccessibleClick (accessibleClick)="close()">
+    <div class="modal-content" appTrapFocus [onEscape]="close" (click)="$event.stopPropagation()">
+        <button class="close-button" appAccessibleClick (accessibleClick)="close()">×</button>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+            <h4 class="text-center">Login</h4>
+            <br>
+
+            <!-- IDENTIFIER -->
+            <div class="form-row">
+                <label for="identifier">Email or Username:</label>
+                <input id="identifier" formControlName="identifier"
+                    [class.invalid]="identifier?.invalid && (identifier?.touched || submitted)"
+                    placeholder="username or email" />
+                <div class="error-placeholder">
+                    <p class="error" *ngIf="identifier?.hasError('required') && (identifier?.touched || submitted)">
+                        Obavezno
+                    </p>
+                    <p class="error invisible"
+                        *ngIf="!identifier?.hasError('required') || !(identifier?.touched || submitted)">
+                        &nbsp;
+                    </p>
+                </div>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="form-row">
+                <label for="password">Password:</label>
+                <div class="password-wrapper">
+                    <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
+                        placeholder="password" class="password-input"
+                        [class.invalid]="password?.invalid && (password?.touched || submitted)" />
+                    <button type="button" appAccessibleClick (accessibleClick)="togglePassword()" class="toggle-password">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                </div>
+                <div class="error-placeholder">
+                    <p class="error" *ngIf="password?.hasError('required') && (password?.touched || submitted)">
+                        Obavezno
+                    </p>
+                    <p class="error invisible"
+                        *ngIf="!password?.hasError('required') || !(password?.touched || submitted)">
+                        &nbsp;
+                    </p>
+                </div>
+            </div>
+
+            <!-- SUBMIT (defaultni login gumb) -->
+            <div class="text-center" *ngIf="!showResend">
+                <button type="submit" [disabled]="loginForm.invalid">Prijavi se</button>
+            </div>
+
+            <!-- ERROR: pogrešna lozinka -->
+            <div *ngIf="loginFailed" class="error text-center mt-3">
+                Wrong Password
+                <br />
+                <button type="submit" appAccessibleClick (accessibleClick)="openForgotPasswordModal()">
+                    Zaboravili ste lozinku?
+                </button>
+            </div>
+
+            <!-- RESEND (ako je korisnik ne-verificiran) -->
+            <div class="text-center" *ngIf="showResend">
+                <button type="button" class="link-button" appAccessibleClick (accessibleClick)="resendVerification()">
+                    Ponovno pošalji verifikacijski link
+                </button>
+            </div>
+
+            <!-- MESSAGES -->
+            <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+            <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+            <!-- REGISTER -->
+            <div *ngIf="!loginFailed && showRegisterSuggestion" class="mt-4 text-center">
+                <span>Nemate račun?</span>
+                <a href="#" appAccessibleClick (accessibleClick)="switchToRegister()" class="text-blue-600 hover:underline">
+                    Register
+                </a>
+            </div>
+
+            <!-- SOCIAL -->
+            <div class="text-center social-login mt-4">
+                <p class="text-sm mb-2">Or Login Using:</p>
+                <button type="button" class="link-button" appAccessibleClick (accessibleClick)="loginWithGoogle()">Google</button>
+                <button type="button" class="link-button" appAccessibleClick (accessibleClick)="loginWithFacebook()">Facebook</button>
+            </div>
+        </form>
+
+        <app-reset-password *ngIf="showResetPasswordModal" (close)="onCloseResetModal()" class="link-button"></app-reset-password>
+    </div>
+</div>

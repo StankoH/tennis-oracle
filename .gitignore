@@ -1,0 +1,19 @@
+# === IGNORIRAJ SAMO CSV-ove iz ovog specifičnog foldera, jerbo smo najebali ak obrisemo izvor podataka ===
+/backend/scripts/import/data/*.csv
+
+# === IGNORIRAJ node_modules ===
+/backend/node_modules/
+/frontend/node_modules/
+
+# === IGNORIRAJ build/temp output ===
+dist/
+tmp/
+temp/
+.env
+
+# === IGNORIRAJ IDE postavke ===
+.vscode/
+.idea/
+
+# === LOG FILES ===
+*.log

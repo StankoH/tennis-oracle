@@ -1,0 +1,31 @@
+.modal-backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modal-content {
+    background: white;
+    width: 90%;
+    max-width: 500px;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+  
+    h5 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+  }
+  
+  .modal-body {
+    font-size: 0.95rem;
+    color: #333;
+  }
+  

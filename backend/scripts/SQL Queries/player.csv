@@ -1,0 +1,73 @@
+WITH PlayerTSHistory AS (
+    SELECT 
+        Player1TPId AS PlayerTPId,
+        Player1TrueSkillMeanM AS TrueSkillMeanM,
+        Player1TrueSkillMeanSM AS TrueSkillMeanSM,
+        Player1TrueSkillMeanGSM AS TrueSkillMeanGSM
+    FROM Match
+
+    UNION ALL
+
+    SELECT 
+        Player2TPId AS PlayerTPId,
+        Player2TrueSkillMeanM,
+        Player2TrueSkillMeanSM,
+        Player2TrueSkillMeanGSM
+    FROM Match
+),
+PlayerTSCareerAvg AS (
+    SELECT 
+        PlayerTPId,
+        ROUND(AVG((TrueSkillMeanM + TrueSkillMeanSM + TrueSkillMeanGSM) / 3.0), 2) AS TSCareerAvg
+    FROM PlayerTSHistory
+    GROUP BY PlayerTPId
+),
+RecentMatchPlayers AS (
+    SELECT DISTINCT Player1TPId AS PlayerTPId
+    FROM Match
+    WHERE DateTime >= '2024-06-01'
+
+    UNION
+
+    SELECT DISTINCT Player2TPId
+    FROM Match
+    WHERE DateTime >= '2024-06-01'
+)
+SELECT 
+    p.PlayerTPId,
+    p.PlayerName,
+    p.CountryTPId,
+    ISNULL(c.CountryISO2, '') AS CountryISO2,
+    ISNULL(c.CountryISO3, '') AS CountryISO3,
+    ISNULL(c.CountryFull, '') AS CountryFull,
+    p.PlayerBirthDate,
+    CASE 
+        WHEN p.PlayerBirthDate IS NOT NULL THEN
+            DATEDIFF(YEAR, p.PlayerBirthDate, GETDATE()) - 
+            CASE 
+                WHEN DATEADD(YEAR, DATEDIFF(YEAR, p.PlayerBirthDate, GETDATE()), p.PlayerBirthDate) > GETDATE()
+                THEN 1 
+                ELSE 0 
+            END
+        ELSE NULL
+    END AS Age,
+    p.PlayerHeight,
+    p.PlayerWeight,
+    p.PlayerTurnedPro,
+    p.PlaysId,
+    ISNULL(ps.Plays, '') AS Plays,
+    CASE 
+        WHEN (p.WinsTotal + p.LossesTotal) > 0 
+        THEN ROUND(CAST(p.WinsTotal AS FLOAT) / (p.WinsTotal + p.LossesTotal), 2)
+        ELSE NULL
+    END AS WinRatio,
+    p.WinsTotal + p.LossesTotal AS Matches,
+    ROUND(((p.TrueSkillMeanM + p.TrueSkillMeanSM + p.TrueSkillMeanGSM) / 3.0), 2) AS TS,
+    tsavg.TSCareerAvg
+FROM Player p
+LEFT JOIN Country c ON p.CountryTPId = c.CountryTPId
+LEFT JOIN Plays ps ON ps.PlaysId = p.PlaysId
+LEFT JOIN PlayerTSCareerAvg tsavg ON tsavg.PlayerTPId = p.PlayerTPId
+LEFT JOIN RecentMatchPlayers rmp ON rmp.PlayerTPId = p.PlayerTPId
+WHERE rmp.PlayerTPId IS NOT NULL
+ORDER BY p.PlayerName;

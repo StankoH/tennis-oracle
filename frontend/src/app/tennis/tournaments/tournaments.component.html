@@ -1,0 +1,77 @@
+<div class="tournamentEvents-page-wrapper">
+  <!-- Sticky Navigation Bar -->
+  <div class="date-nav-sticky d-flex align-items-center justify-content-between mt-3 px-2">
+    <div class="pagination-center-wrapper mx-auto d-flex align-items-center gap-3">
+      <button (click)="previousDay()" class="link-button" [disabled]="isPrevDisabled">
+        <img src="assets/icons/left.svg" alt="Previous" class="arrow-icon" />
+      </button>
+
+      <input #dateInput type="date" class="custom-date-input"
+        [value]="formatDateForInput(currentDate) | date:'yyyy-MM-dd'" (change)="onDateInputChanged($event)"
+        [disabled]="tournaments.length === 0 || (isFiltered && filteredAvailableDates.length === 0)" />
+
+      <button (click)="nextDay()" class="link-button" [disabled]="isNextDisabled">
+        <img src="assets/icons/right.svg" alt="Next" class="arrow-icon" />
+      </button>
+    </div>
+
+    <!-- Filter Button -->
+    <div class="filter-button-wrapper">
+      <button (click)="openFilterModal()" class="link-button d-flex align-items-center gap-2">
+        <img src="assets/icons/filter.svg" alt="Filter" class="arrow-icon" />
+        Filter
+        <span *ngIf="isFiltered" class="badge bg-success ms-1">●</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="tournamentEvent-table-wrapper">
+    <table class="tournamentEvent-table">
+      <thead>
+        <tr>
+          <th (click)="toggleSort('tournament')">
+            Name
+            <span *ngIf="sortField === 'tournament'">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+
+          <th (click)="toggleSort('date')">
+            Date
+            <span *ngIf="sortField === 'date'">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th>Level</th>
+          <th>Type</th>
+          <th (click)="toggleSort('prize')">
+            Prize
+          </th>
+          <th>Surface</th>
+          <th>Matches</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tournamentEvent of tournaments">
+          <td>
+            <span class="fi fi-{{ tournamentEvent.countryISO2?.toLowerCase() }}"></span>
+            <span class="clickable-text" (click)="openTournamentModal(tournamentEvent.tournamentEventId)">
+              {{ decodeHtmlEntities(removeRomanSuffix(removeRomanSuffix(tournamentEvent.tournamentEventName))) }}
+            </span>
+          </td>
+          <td>{{ getLocalizedDateTime(tournamentEvent.matchDate) }}</td>
+          <td>{{ tournamentEvent.tournamentLevel }}</td>
+          <td>{{ tournamentEvent.tournamentType }}
+          <td>{{ tournamentEvent.prize }}</td>
+          <td>{{ tournamentEvent.surface }}</td>
+          <td>{{ tournamentEvent.matches || 0 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-tournament-filter-modal *ngIf="showFilterModal" [activeTournamentTypeIds]="activeTournamentTypeIds"
+    (filterApplied)="onFilterApplied($event)" (resetFilter)="clearFilter()" (closed)="closeFilterModal()">
+  </app-tournament-filter-modal>
+
+</div>

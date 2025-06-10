@@ -1,0 +1,87 @@
+<div class="players-page-wrapper">
+  <!-- Sticky Navigation Bar for Players -->
+  <div class="date-nav-sticky d-flex align-items-center justify-content-between mt-3 px-2">
+    <div class="pagination-center-wrapper mx-auto d-flex align-items-center gap-3">
+      <button (click)="previousPage()" class="link-button" [disabled]="currentPage === 1">
+        <img src="assets/icons/left.svg" alt="Previous" class="arrow-icon" />
+      </button>
+
+      <input type="number" class="custom-page-input no-spin" [value]="currentPage" (change)="onPageInputChange($event)"
+        min="1" [max]="totalPages" />
+
+      <span>of {{ totalPages }}</span>
+
+      <button (click)="nextPage()" class="link-button" [disabled]="currentPage === totalPages">
+        <img src="assets/icons/right.svg" alt="Next" class="arrow-icon" />
+      </button>
+    </div>
+
+    <!-- Filter Button -->
+    <div class="filter-button-wrapper">
+      <button (click)="openFilterModal()" class="link-button d-flex align-items-center gap-2">
+        <img src="assets/icons/filter.svg" alt="Filter" class="arrow-icon" />
+        Filter
+        <span *ngIf="isFiltered" class="badge bg-success ms-1">●</span>
+      </button>
+    </div>
+  </div>
+
+
+  <div class="player-table-wrapper">
+    <table class="player-table">
+      <thead>
+        <tr>
+          <th (click)="toggleSort('playerName')">
+            Name
+            <span *ngIf="sortField === 'playerName'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          </th>
+          <th (click)="toggleSort('playerBirthDate')">
+            Birth Date
+            <span *ngIf="sortField === 'playerBirthDate'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          </th>
+          <th>Height (cm)</th>
+          <th>Weight (kg)</th>
+          <th>Turned Pro</th>
+          <th>Plays</th>
+          <th (click)="toggleSort('trueSkillMean')">
+            TS Mean
+            <span *ngIf="sortField === 'trueSkillMean'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          </th>
+          <th (click)="toggleSort('careerTrueSkillMean')">
+            TS Mean Career
+            <span *ngIf="sortField === 'careerTrueSkillMean'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          </th>
+
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let player of players">
+          <td>
+            <span class="fi fi-{{ player.countryTPId?.countryISO2?.toLowerCase() }}"></span>
+            <span class="clickable-text" (click)="openPlayerModal(player.playerTPId)">
+              {{ decodeHtmlEntities(player.playerName) }}
+            </span>
+          </td>
+          <td>
+            {{ player.playerBirthDate ? (player.playerBirthDate | date:'yyyy-MM-dd') : '' }}
+          </td>
+          <td>{{ player.playerHeight !== undefined && player.playerHeight > 0 ? player.playerHeight : '' }}</td>
+          <td>{{ player.playerWeight !== undefined && player.playerWeight > 0 ? player.playerWeight : '' }}</td>
+          <td>{{ player.playerTurnedPro !== undefined && player.playerTurnedPro > 0 ? player.playerTurnedPro : '' }}
+          </td>
+          <td>{{ player.playsId?.plays || '' }}</td>
+          <td>{{ player.trueSkillMean}}</td>
+          <td>{{ player.careerTrueSkillMean}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-player-modal *ngIf="selectedPlayer" [playerTPId]="selectedPlayer" (closed)="closePlayerModal()">
+  </app-player-modal>
+
+  <app-player-filter-modal *ngIf="showFilterModal" [activeTournamentTypeIds]="activeTournamentTypeIds"
+    (closed)="closeFilterModal()" (filterApplied)="onFilterApplied($event)" (resetFilter)="resetFilter()">
+  </app-player-filter-modal>
+
+</div>

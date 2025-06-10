@@ -1,0 +1,131 @@
+label {
+    font-weight: 500;
+    margin-top: 0rem;
+  }
+  
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    outline: none;
+    box-sizing: border-box;
+  }
+  
+  input.invalid {
+    border-color: #e74c3c;
+  }
+  
+  .error-placeholder {
+    min-height: 0em;
+  }
+  
+  .error {
+    color: #e74c3c;
+    font-size: 1em;
+    margin-top: 0px;
+  }
+  
+  .success {
+    color: #2ecc71;
+    font-size: 1rem;
+    margin-top: 0rem;
+  }
+  
+  .invisible {
+    visibility: hidden;
+  }
+  
+  .primary-button {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    width: 100%;
+    background-color: #444; // tamna siva
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  
+    &:hover {
+      background-color: #222;
+      color: white;}
+  
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+  
+  .link-button {
+    background: none!important;
+    border: none!important;
+    color: #333!important;
+    font-size: 0.95rem!important;
+    text-decoration: none!important;
+    cursor: pointer!important;
+    padding: 0!important;
+    margin: 0.25rem 0!important;
+    display: inline-block!important;
+    text-align: center!important;
+    transition: color 0.2s ease!important;
+    &:hover {
+      text-decoration: underline!important;
+      color: #000!important;
+    }
+  }
+
+  // TODO: Override Bootstrap button color for emojis — poliranje kad funkcionalnost bude gotova
+  button.link-button, .link-button span {
+    color: #555 !important;
+  }
+  
+  .password-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .password-input {
+    width: 100%;
+    padding: 12px 40px 12px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+  }
+  
+  .toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #666;
+  }
+
+  button[type="submit"] {
+    @extend .primary-button;
+  }
+
+  .link-button {
+    display: inline-block;
+    margin: 0 0.5rem;
+    text-align: center;
+  }
+
+  .form-messages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  
+    .success, .error {
+      text-align: center;
+    }
+  }

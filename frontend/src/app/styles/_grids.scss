@@ -1,0 +1,359 @@
+.date-nav-sticky {
+    position: relative;
+    z-index: 10;
+    background-color: #fff;
+    padding: 0.25rem 0.5rem;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .pagination-center-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .filter-button-wrapper {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .link-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .arrow-icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+  }
+  
+  .custom-date-input {
+    font-size: 0.85rem;
+    padding: 2px 6px;
+    height: 28px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .date-nav-bottom {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background-color: #fff;
+    padding: 0.25rem 0.5rem;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid #ccc;
+  }
+
+.table-wrapper, .player-table-wrapper, .tournamentEvent-table-wrapper {
+    flex-grow: 1;
+    max-height: 100%;
+    max-height: calc(100vh - 195px);
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: auto;
+    margin: 0 auto;
+    background-color: #fff;
+    margin-top: -2px!important;    
+}
+.player-table-wrapper, .tournamentEvent-table-wrapper {
+    max-height: calc(100vh - 165px);
+}
+
+.match-table tr:hover, .player-table tr:hover, .tournamentEvent-table tr:hover {
+    background-color: #f6f6f6;
+    cursor: default;
+}
+
+.match-table td, .player-table td, .tournamentEvent-table td,
+.match-table th, .player-table th, .tournamentEvent-table th {
+    background-color: #e6e6e6;
+    border-top: 1px solid #f5f5f5;
+    border-left: 1px solid #f5f5f5;
+    border-bottom: 1px solid #b3b3b3;
+    border-right: 1px solid #b3b3b3;
+    padding: 2px 8px;
+    font-size: 0.875rem;
+}
+
+.match-table thead th, .player-table thead th, .tournamentEvent-table thead th {
+    background-color: #d0d0d0;
+    border-top: 1px solid #eeeeee;
+    border-left: 1px solid #eeeeee;
+    border-bottom: 1px solid #999999;
+    border-right: 1px solid #999999;
+    padding: 4px 8px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    text-align: center;
+}
+
+.match-table tbody tr:nth-child(even) td, .player-table tbody tr:nth-child(even) td, .tournamentEvent-table tbody tr:nth-child(even) td {
+    background-color: #dddddd;
+}
+
+.match-table tbody tr:nth-child(odd) td, .player-table tbody tr:nth-child(odd) td, .tournamentEvent-table tbody tr:nth-child(odd) td {
+    background-color: #e9e9e9;
+}
+
+.match-table tr:hover td, .player-table tr:hover td, .tournamentEvent-table tr:hover td {
+    background-color: #dcdcdc;
+    border-top: 1px solid #999;
+    border-left: 1px solid #999;
+    border-bottom: 1px solid #f5f5f5;
+    border-right: 1px solid #f5f5f5;
+}
+
+// .match-table td:nth-child(1) {
+//     width: 129px;
+//     min-width: 129px;
+//     max-width: 129px;
+//     white-space: nowrap;
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+//   }
+  
+
+// .match-table td:nth-child(2) {
+//     width: 276px;  
+//     text-align: left;
+// }
+
+// .match-table td:nth-child(3) {
+//     text-align: center;
+// }
+
+// .match-table td:nth-child(4) {
+//     width: 317px;  
+//     text-align: left;
+// }
+
+// .match-table td:nth-child(5) {
+//     width: 317px;  
+//     text-align: left;
+// }
+
+// .match-table td:nth-child(6) {
+//     text-align: center;
+// }
+// .match-table td:nth-child(7) {
+//     width: 169px;
+//     text-align: center;
+// }
+
+// .player-table td:nth-child(1) {
+//     width: 317px;  
+//     text-align: left;
+// }
+// .player-table td:nth-child(3){
+//     text-align: center;
+// }
+// .player-table td:nth-child(4){
+//     text-align: center;
+// }
+// .player-table td:nth-child(5){
+//     text-align: center;
+// }
+// .player-table td:nth-child(6){
+//     text-align: center;
+// }
+
+// .tournamentEvent-table td:nth-child(1){
+//     width: 276px;  
+//     text-align: left;
+// }
+
+// .tournamentEvent-table td:nth-child(2) {
+//     width: 100px;
+//     min-width: 100px;
+//     max-width: 100px;
+//     white-space: nowrap;
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+//     text-align: center;
+//   }
+
+// .tournamentEvent-table td:nth-child(3){
+//     width: 173px;
+//     min-width: 173x;
+//     max-width: 173px;
+//     white-space: nowrap;
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+//     text-align: center;
+// }
+
+// .tournamentEvent-table td:nth-child(4){
+//     text-align: center;
+// }
+
+// .tournamentEvent-table td:nth-child(6){
+//     text-align: center;
+// }
+// .tournamentEvent-table td:nth-child(5){
+//     width: 98px;
+//     min-width: 98px;
+//     max-width: 98px;
+//     white-space: nowrap;
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+//     text-align: right;
+// }
+
+
+// .match-table td:nth-child(11) {
+//     display: inline-block;
+//     padding: 4px 8px;
+//     font-size: 1rem;
+//     font-weight: 600;
+//     color: #333;
+//     background-color: #d0d0d0;
+//     border-top: 1px solid #eeeeee;
+//     border-left: 1px solid #eeeeee;
+//     border-bottom: 1px solid #999999;
+//     border-right: 1px solid #999999;
+//     border-radius: 2px;
+//     cursor: pointer;
+//     user-select: none;
+//     white-space: nowrap;
+//     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+//     transition: background-color 0.2s ease;
+//     width: 65px;
+// }
+
+// .match-table td:nth-child(11):hover {
+//     background-color: #c0c0c0;
+// }
+
+.app-header,
+.app-footer {
+    background-color: #d0d0d0;
+    border-top: 1px solid #eeeeee;
+    border-left: 1px solid #eeeeee;
+    border-bottom: 1px solid #999999;
+    border-right: 1px solid #999999;
+    margin-bottom: -30px;
+}
+
+.odds-combined-cell {
+    padding: 0 !important;
+    font-family: monospace;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.odds-combined-cell .odds-left,
+.odds-combined-cell .odds-right {
+    display: inline-block;
+    width: 40px;
+    text-align: right;
+    padding-right: 4px;
+}
+
+.odds-combined-cell .odds-separator {
+    display: inline-block;
+    padding: 3px;
+}
+
+.percentage-combined-cell {
+padding-left: 2;
+}
+
+.clickable-text {
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.clickable-text:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: #888;
+}
+
+  .no-spin::-webkit-inner-spin-button,
+  .no-spin::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  .custom-page-input {
+    width: 60px;
+    height: 20px;
+    text-align: center;
+    padding: 0px 2px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+  }
+
+  .details-cell {
+    text-align: center;
+    vertical-align: middle;
+  
+    .details-label {
+      display: inline-block;
+      padding: 0px 8px;
+      background-color: #eaeaea;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      color: #333;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 #fff; // blagi 3D efekt
+  
+      &:hover {
+        background-color: #dcdcdc;
+      }
+    }
+  }
+
+  .badge.bg-success {
+    font-size: 0.6rem;
+    padding: 4px 6px;
+    border-radius: 50%;
+    line-height: 1;
+  }
+
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); // siva prozirna pozadina
+    z-index: 1050; // iznad svega
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .spinner-wrapper {
+    text-align: center;
+  }

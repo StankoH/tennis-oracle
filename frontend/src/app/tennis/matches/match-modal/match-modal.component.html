@@ -1,0 +1,646 @@
+<div class="match-modal-backdrop"></div>
+<div class="match-modal-content">
+  <div class="modal-header justify-content-between align-items-center">
+    <h5 class="modal-title">Match Details</h5>
+    <button class="btn btn-sm btn-secondary" (click)="close()">×</button>
+  </div>
+
+  <div class="tab-nav mb-3">
+    <ul class="nav nav-tabs">
+      <li class="nav-item" *ngFor="let tab of tabs">
+        <a class="nav-link" [class.active]="activeTab === tab" (click)="setActiveTab(tab)" href="javascript:void(0)">
+          {{ tab }}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="modal-body text-center">
+    <ng-container *ngIf="!loadingDetails && summaryData as details; else loadingOrError">
+
+      <!-- ✅ TAB 1: Samo osnovni podaci -->
+      <div *ngIf="activeTab === 'Summary'">
+        <p class="mb-1">
+          <span *ngIf="details.tournamentEventCountryISO2"
+            class="fi fi-{{ details.tournamentEventCountryISO2.toLowerCase() }} me-1 align-middle"
+            [title]="details.tournamentEventCountryFull" [attr.alt]="details.tournamentEventCountryFull"></span>
+          {{ details.tournamentEventName }} ({{ details.tournamentEventCountryISO3 }})
+          <span *ngIf="details.tournamentType"> • {{ details.tournamentType }}</span>
+          <span *ngIf="details.tournamentLevel"> • {{ details.tournamentLevel }}</span>
+          <span class="mx-1">•</span>
+          {{ details.dateTime | date:'MM/dd/yyyy, HH:mm' }}
+          <span class="mx-1">•</span>
+          {{ details.surface }}
+        </p>
+
+        <p class="mb-1">
+          <span *ngIf="details.player1CountryISO3"
+            class="fi fi-{{ details.player1CountryISO2.toLowerCase() }} me-1 align-middle"
+            [title]="details.player1CountryFull" [attr.alt]="details.player1CountryFull"></span>
+          ({{ details.player1CountryISO3 }}) {{ details.player1Name }}
+          <span class="mx-1"> • </span>
+          <span *ngIf="details.player2CountryISO3"
+            class="fi fi-{{ details.player2CountryISO2.toLowerCase() }} me-1 align-middle"
+            [title]="details.player2CountryFull" [attr.alt]="details.player2CountryFull"></span>
+          ({{ details.player2CountryISO3 }}) {{ details.player2Name }}
+        </p>
+
+        <p class="mb-1 text-muted">
+          <strong>{{ details.result || ' • ' }}</strong>
+          <span *ngIf="details.resultDetails"> • {{ details.resultDetails }}</span>
+        </p>
+
+        <p class="mb-1"><strong>Prize:</strong> {{ details.prize + '$' || '-' }}</p>
+        <p class="mb-1">
+          <strong>Win Probability:</strong>
+          <span [style.color]="getWpColor(details.winProbabilityPlayer1NN)">
+            {{ details.winProbabilityPlayer1NN | number:'1.2-2' }}%
+          </span>
+          •
+          <span [style.color]="getWpColor(details.winProbabilityPlayer2NN)">
+            {{ details.winProbabilityPlayer2NN | number:'1.2-2' }}%
+          </span>
+        </p>
+
+        <p class="mb-1">
+          <strong>Odds:</strong>
+          <span [style.color]="getOddsColor(details.player1Odds, details.player2Odds)">
+            {{ details.player1Odds }}
+          </span>
+          •
+          <span [style.color]="getOddsColor(details.player2Odds, details.player1Odds)">
+            {{ details.player2Odds }}
+          </span>
+        </p>
+        <p class="mb-1">
+          <strong>Value Margin:</strong>
+          <span [style.color]="getValueColor(details.valueMarginPlayer1)">
+            {{ details.valueMarginPlayer1 | number:'1.2-2' }}%
+          </span>
+          •
+          <span [style.color]="getValueColor(details.valueMarginPlayer2)">
+            {{ details.valueMarginPlayer2 | number:'1.2-2' }}%
+          </span>
+        </p>
+        <!-- Who to Bet -->
+        <strong>Who to Bet:</strong>
+        <span *ngIf="getWhoToBetName() as who" [style.color]="getWhoToBetColor()">
+          {{ who }}
+        </span>
+      </div>
+
+      <div *ngIf="activeTab === 'TS Breakdown' && lineChartData.length && lineChartLabels.length">
+        <canvas baseChart [datasets]="lineChartData" [labels]="lineChartLabels" [options]="lineChartOptions"
+          [legend]="true" [type]="'line'">
+        </canvas>
+      </div>
+
+      <div *ngIf="activeTab === 'Win Probability Breakdown' && winProbChartData?.[0]?.data?.length">
+        <canvas baseChart [datasets]="winProbChartData" [labels]="lineChartLabels" [options]="winProbChartOptions"
+          [legend]="true" [type]="'line'">
+        </canvas>
+      </div>
+
+      <!-- ✅ TAB 2: Samo TrueSkill -->
+      <div *ngIf="activeTab === 'TrueSkill'" class="trueskill-tab px-2 mt-3">
+        <div class="row text-center fw-bold mb-2">
+          <div class="col-4 text-end">{{ details.player1Name }}</div>
+          <div class="col-4 text-center">Metric</div>
+          <div class="col-4 text-start">{{ details.player2Name }}</div>
+        </div>
+
+        <!-- Globalni TrueSkill podaci (bez sufiksa) -->
+        <div class="row text-center mb-1">
+          <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldM.toFixed(2) }}</div>
+          <div class="col-4 text-center">TS Mean Match</div>
+          <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldM.toFixed(2) }}</div>
+        </div>
+        <div class="row text-center mb-1">
+          <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldM.toFixed(2) }}</div>
+          <div class="col-4 text-center">TS SD Match</div>
+          <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldM.toFixed(2) }}</div>
+        </div>
+        <div class="row text-center mb-1">
+          <div class="col-4 text-end">{{ details.winProbabilityplayer1M.toFixed(2) }}%</div>
+          <div class="col-4 text-center">Win Probability Match</div>
+          <div class="col-4 text-start">{{ details.winProbabilityplayer2M.toFixed(2) }}%</div>
+        </div>
+        <div class="row text-center mb-1">
+          <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldSM.toFixed(2) }}</div>
+          <div class="col-4 text-center">TS Mean SetMatch</div>
+          <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldSM.toFixed(2) }}</div>
+        </div>
+        <div class="row text-center mb-1">
+          <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldSM.toFixed(2) }}</div>
+          <div class="col-4 text-center">TS SD SetMatch</div>
+          <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldSM.toFixed(2) }}</div>
+        </div>
+        <div class="row text-center mb-1">
+          <div class="col-4 text-end">{{ details.winProbabilityplayer1SM.toFixed(2) }}%</div>
+          <div class="col-4 text-center">Win Probability SetMatch</div>
+          <div class="col-4 text-start">{{ details.winProbabilityplayer2SM.toFixed(2) }}%</div>
+        </div>
+        <div class="row text-center mb-1">
+          <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldGSM.toFixed(2) }}</div>
+          <div class="col-4 text-center">TS Mean GameSetMatch</div>
+          <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldGSM.toFixed(2) }}</div>
+        </div>
+        <div class="row text-center mb-1">
+          <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldGSM.toFixed(2) }}</div>
+          <div class="col-4 text-center">TS SD GameSetMatch</div>
+          <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldGSM.toFixed(2) }}</div>
+        </div>
+        <div class="row text-center mb-1">
+          <div class="col-4 text-end">{{ details.winProbabilityplayer1GSM.toFixed(2) }}%</div>
+          <div class="col-4 text-center">Win Probability GameSetMatch</div>
+          <div class="col-4 text-start">{{ details.winProbabilityplayer2GSM.toFixed(2) }}%</div>
+        </div>
+
+        <!-- Vizualni razdjelnik -->
+        <hr class="my-3" />
+
+        <!-- Specifične TrueSkill vrijednosti po podlozi -->
+        <ng-container [ngSwitch]="details.surfaceId">
+
+          <ng-container *ngSwitchCase="1">
+            <p>Indoors</p>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldMS1.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean Match</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldMS1.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldMS1.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD Match</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldMS1.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1MS1.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability Match</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2MS1.toFixed(2) }}%</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldSMS1.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean SetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldSMS1.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldSMS1.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD SetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldSMS1.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1SMS1.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability SetMatch</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2SMS1.toFixed(2) }}%</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldGSMS1.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldGSMS1.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldGSMS1.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldGSMS1.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1GSMS1.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2GSMS1.toFixed(2) }}%</div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="2">
+            <p>Clay</p>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldMS2.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean Match</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldMS2.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldMS2.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD Match</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldMS2.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1MS2.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability Match</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2MS2.toFixed(2) }}%</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldSMS2.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean SetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldSMS2.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldSMS2.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD SetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldSMS2.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1SMS2.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability SetMatch</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2SMS2.toFixed(2) }}%</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldGSMS2.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldGSMS2.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldGSMS2.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldGSMS2.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1GSMS2.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2GSMS2.toFixed(2) }}%</div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="3">
+            <p>Grass</p>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldMS3.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean Match</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldMS3.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldMS3.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD Match</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldMS3.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1MS3.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability Match</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2MS3.toFixed(2) }}%</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldSMS3.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean SetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldSMS3.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldSMS3.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD SetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldSMS3.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1SMS3.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability SetMatch</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2SMS3.toFixed(2) }}%</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldGSMS3.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldGSMS3.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldGSMS3.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldGSMS3.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1GSMS3.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2GSMS3.toFixed(2) }}%</div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="4">
+            <p>Hard</p>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldMS4.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean Match</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldMS4.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldMS4.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD Match</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldMS4.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1MS4.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability Match</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2MS4.toFixed(2) }}%</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldSMS4.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean SetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldSMS4.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldSMS4.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD SetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldSMS4.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1SMS4.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability SetMatch</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2SMS4.toFixed(2) }}%</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillMeanOldGSMS4.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS Mean GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillMeanOldGSMS4.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.player1TrueSkillStandardDeviationOldGSMS4.toFixed(2) }}</div>
+              <div class="col-4 text-center">TS SD GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.player2TrueSkillStandardDeviationOldGSMS4.toFixed(2) }}</div>
+            </div>
+            <div class="row text-center mb-1">
+              <div class="col-4 text-end">{{ details.winProbabilityplayer1GSMS4.toFixed(2) }}%</div>
+              <div class="col-4 text-center">Win Probability GameSetMatch</div>
+              <div class="col-4 text-start">{{ details.winProbabilityplayer2GSMS4.toFixed(2) }}%</div>
+            </div>
+          </ng-container>
+
+        </ng-container>
+      </div>
+
+      <!-- ✅ TAB 3: Performance -->
+      <div *ngIf="activeTab === 'Performance' && summaryData as details" class="performance-tab px-2 mt-3">
+        <!-- Header -->
+        <div class="row text-center fw-bold mb-3">
+          <div class="col-4 text-end">{{ details.player1Name }}</div>
+          <div class="col-4 text-center">Metric</div>
+          <div class="col-4 text-start">{{ details.player2Name }}</div>
+        </div>
+
+        <!-- 🎾 Podloga -->
+        <div class="mb-2 text-center">
+          <div class="form-check form-check-inline" *ngFor="let surface of ['all', match?.surfaceId?.toString()]">
+            <input class="form-check-input" type="radio" name="performanceSurface" [value]="surface"
+              [(ngModel)]="performanceSurface" [id]="'surface-' + surface">
+            <label class="form-check-label" [for]="'surface-' + surface">
+              {{ surface === 'all' ? 'All Surfaces' : 'S' + surface }}
+            </label>
+          </div>
+        </div>
+
+        <!-- 🕒 Vremenski okvir -->
+        <div class="mb-3 text-center">
+          <div class="form-check form-check-inline" *ngFor="let range of rangeOptions">
+            <input class="form-check-input" type="radio" name="performanceRange_Main" [value]="range"
+              [checked]="getPerformanceRange('Matches') === range" (change)="setPerformanceRange('Matches', range)"
+              [id]="'range-Matches-' + range" />
+            <label class="form-check-label text-capitalize" [for]="'range-Matches-' + range">
+              {{ range === 'all' ? 'All Matches' : 'Last ' + range }}
+            </label>
+          </div>
+        </div>
+
+        <!-- Prikaz statistike ovisno o izboru -->
+        <ng-container [ngSwitch]="performanceRanges">
+          <div class="row text-center mb-1" *ngFor="let metric of metrics">
+            <div class="col-4 text-end">
+              {{ getPerformanceValue(details, 1, metric) }}<span *ngIf="metric === 'WinRatio'">%</span>
+            </div>
+            <div class="col-4 text-center">{{ metric }}</div>
+            <div class="col-4 text-start">
+              {{ getPerformanceValue(details, 2, metric) }}<span *ngIf="metric === 'WinRatio'">%</span>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- ✅ TAB 4: Set Performance -->
+      <div *ngIf="activeTab === 'Set Performance' && summaryData">
+        <ng-container
+          *ngTemplateOutlet="performanceBlock; context: { details: summaryData, scope: 'Sets', metrics: metrics }"></ng-container>
+      </div>
+
+      <!-- ✅ TAB 5: Game Performance -->
+      <div *ngIf="activeTab === 'Game Performance' && summaryData">
+        <ng-container
+          *ngTemplateOutlet="performanceBlock; context: { details: summaryData, scope: 'Games', metrics: metrics }"></ng-container>
+      </div>
+
+    </ng-container>
+
+    <ng-template #performanceBlock let-details="details" let-scope="scope" let-metrics="metrics">
+      <!-- Header -->
+      <div class="row text-center fw-bold mb-3">
+        <div class="col-4 text-end">{{ details.player1Name }}</div>
+        <div class="col-4 text-center">Metric</div>
+        <div class="col-4 text-start">{{ details.player2Name }}</div>
+      </div>
+
+      <!-- 🎾 Podloga (surface) -->
+      <div class="mb-2 text-center">
+        <div class="form-check form-check-inline" *ngFor="let surface of ['all', match?.surfaceId?.toString()]">
+          <input class="form-check-input" type="radio" name="performanceSurface_{{scope}}" [value]="surface"
+            [(ngModel)]="performanceSurface" [id]="'surface-' + scope + '-' + surface" />
+          <label class="form-check-label" [for]="'surface-' + scope + '-' + surface">
+            {{ surface === 'all' ? 'All Surfaces' : 'S' + surface }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Radio buttons za vremenski okvir -->
+      <div class="mb-3 text-center">
+        <div class="form-check form-check-inline" *ngFor="let range of ['all', 'year', 'month', 'week']">
+          <input class="form-check-input" type="radio" name="performanceRange_{{scope}}" [value]="range"
+            [checked]="getPerformanceRange(scope) === range" (change)="setPerformanceRange(scope, range)"
+            [id]="'range-' + scope + '-' + range" />
+          <label class="form-check-label text-capitalize" [for]="'range-' + scope + '-' + range">
+            {{ range === 'all' ? 'All Matches' : 'Last ' + range }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Statistika -->
+      <div class="row text-center mb-1" *ngFor="let metric of metrics">
+        <div class="col-4 text-end">
+          {{ getPerformanceValue(details, 1, metric, scope) }}
+          <span *ngIf="metric === 'WinRatio'">%</span>
+        </div>
+        <div class="col-4 text-center">{{ metric }}</div>
+        <div class="col-4 text-start">
+          {{ getPerformanceValue(details, 2, metric, scope) }}
+          <span *ngIf="metric === 'WinRatio'">%</span>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- ✅ NEW TAB: Expectation Performance -->
+    <div *ngIf="activeTab === 'Expectation Performance' && summaryData as details">
+      <ng-container *ngTemplateOutlet="expectationPerformanceBlock; context: { details: details }"></ng-container>
+    </div>
+
+    <ng-template #expectationPerformanceBlock let-details="details">
+      <div class="row text-center fw-bold mb-3">
+        <div class="col-4 text-end">{{ details.player1Name }}</div>
+        <div class="col-4 text-center">Metric</div>
+        <div class="col-4 text-start">{{ details.player2Name }}</div>
+      </div>
+
+      <!-- 🕒 Vremenski okvir -->
+      <div class="mb-3 text-center">
+        <div class="form-check form-check-inline" *ngFor="let range of rangeOptions">
+          <input class="form-check-input" type="radio" name="expectationRange" [value]="range"
+            [checked]="getPerformanceRange('Matches') === range" (change)="setPerformanceRange('Matches', range)"
+            [id]="'expectationRange-' + range" />
+          <label class="form-check-label text-capitalize" [for]="'expectationRange-' + range">
+            {{ range === 'all' ? 'All Matches' : 'Last ' + range }}
+          </label>
+        </div>
+      </div>
+
+      <!-- 🧠 Metričke vrijednosti -->
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ getValue(details, 'TotalWinsAsFavourite') }}</div>
+        <div class="col-4">Wins as Favourite</div>
+        <div class="col-4 text-start">{{ getValue(details, 'TotalWinsAsFavourite', 2) }}</div>
+      </div>
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ getValue(details, 'TotalWinsAsUnderdog') }}</div>
+        <div class="col-4">Wins as Underdog</div>
+        <div class="col-4 text-start">{{ getValue(details, 'TotalWinsAsUnderdog', 2) }}</div>
+      </div>
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ getValue(details, 'TotalLossesAsFavourite') }}</div>
+        <div class="col-4">Losses as Favourite</div>
+        <div class="col-4 text-start">{{ getValue(details, 'TotalLossesAsFavourite', 2) }}</div>
+      </div>
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ getValue(details, 'TotalLossesAsUnderdog') }}</div>
+        <div class="col-4">Losses as Underdog</div>
+        <div class="col-4 text-start">{{ getValue(details, 'TotalLossesAsUnderdog', 2) }}</div>
+      </div>
+
+      <!-- 📊 WinRatio i AvgWinningProbability -->
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ formatPercent(getValue(details, 'TotalWinsAsFavourite') / (getValue(details,
+          'TotalWinsAsFavourite') + getValue(details, 'TotalLossesAsFavourite'))) }}</div>
+        <div class="col-4">Wins as Favourite</div>
+        <div class="col-4 text-start">{{ formatPercent(getValue(details, 'TotalWinsAsFavourite', 2) / (getValue(details,
+          'TotalWinsAsFavourite', 2) + getValue(details, 'TotalLossesAsFavourite', 2))) }}</div>
+      </div>
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ formatPercent(getValue(details, 'TotalWinsAsUnderdog') / (getValue(details,
+          'TotalWinsAsUnderdog') + getValue(details, 'TotalLossesAsUnderdog'))) }}</div>
+        <div class="col-4">Wins as Underdog</div>
+        <div class="col-4 text-start">{{ formatPercent(getValue(details, 'TotalWinsAsUnderdog', 2) / (getValue(details,
+          'TotalWinsAsUnderdog', 2) + getValue(details, 'TotalLossesAsUnderdog', 2))) }}</div>
+      </div>
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ formatPercent(getValue(details, 'TotalLossesAsFavourite') / (getValue(details,
+          'TotalWinsAsFavourite') + getValue(details, 'TotalLossesAsFavourite'))) }}</div>
+        <div class="col-4">Losses as Favourite</div>
+        <div class="col-4 text-start">{{ formatPercent(getValue(details, 'TotalLossesAsFavourite', 2) /
+          (getValue(details, 'TotalWinsAsFavourite', 2) + getValue(details, 'TotalLossesAsFavourite', 2))) }}</div>
+      </div>
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ formatPercent(getValue(details, 'TotalLossesAsUnderdog') / (getValue(details,
+          'TotalWinsAsUnderdog') + getValue(details, 'TotalLossesAsUnderdog'))) }}</div>
+        <div class="col-4">Losses as Underdog</div>
+        <div class="col-4 text-start">{{ formatPercent(getValue(details, 'TotalLossesAsUnderdog', 2) /
+          (getValue(details, 'TotalWinsAsUnderdog', 2) + getValue(details, 'TotalLossesAsUnderdog', 2))) }}</div>
+      </div>
+    </ng-template>
+
+    <!-- ✅ NEW TAB: Streak Info -->
+    <div *ngIf="activeTab === 'Streak Info' && summaryData as details">
+      <ng-container *ngTemplateOutlet="streakInfoBlock; context: { details: details }"></ng-container>
+    </div>
+
+    <ng-template #streakInfoBlock let-details="details">
+      <!-- Header -->
+      <div class="row text-center fw-bold mb-3">
+        <div class="col-4 text-end">{{ details.player1Name }}</div>
+        <div class="col-4 text-center">Metric</div>
+        <div class="col-4 text-start">{{ details.player2Name }}</div>
+      </div>
+
+      <!-- 🎾 Podloga -->
+      <div class="mb-2 text-center">
+        <div class="form-check form-check-inline" *ngFor="let surface of ['all', match?.surfaceId?.toString()]">
+          <input class="form-check-input" type="radio" name="streakSurface" [value]="surface"
+            [(ngModel)]="performanceSurface" [id]="'streak-surface-' + surface" />
+          <label class="form-check-label" [for]="'streak-surface-' + surface">
+            {{ surface === 'all' ? 'All Surfaces' : 'S' + surface }}
+          </label>
+        </div>
+      </div>
+
+      <!-- 🔄 Prikaz Streak vrijednosti -->
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ getStreak(details, 'Streak') }}</div>
+        <div class="col-4">Current Streak</div>
+        <div class="col-4 text-start">{{ getStreak(details, 'Streak', 2) }}</div>
+      </div>
+
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ getStreak(details, 'DaysSinceLastWin') }}</div>
+        <div class="col-4">Days Since Win</div>
+        <div class="col-4 text-start">{{ getStreak(details, 'DaysSinceLastWin', 2) }}</div>
+      </div>
+
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ getStreak(details, 'DaysSinceLastLoss') }}</div>
+        <div class="col-4">Days Since Loss</div>
+        <div class="col-4 text-start">{{ getStreak(details, 'DaysSinceLastLoss', 2) }}</div>
+      </div>
+    </ng-template>
+
+    <!-- ✅ NEW TAB: H2H -->
+    <div *ngIf="activeTab === 'H2H' && summaryData as details">
+      <div class="row justify-content-center mb-3">
+        <div class="col-auto">
+          <label for="granularitySelect" class="form-label fw-bold me-2">Granularity:</label>
+          <select class="form-select form-select-sm d-inline w-auto" [(ngModel)]="h2hGranularity"
+            id="granularitySelect">
+            <option value="M">Matches</option>
+            <option value="SM">Sets</option>
+            <option value="GSM">Games</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Header row -->
+      <div class="row text-center fw-bold mb-3">
+        <div class="col-4 text-end">{{ details.player1Name }}</div>
+        <div class="col-4 text-center">Metric</div>
+        <div class="col-4 text-start">{{ details.player2Name }}</div>
+      </div>
+
+      <!-- H2H Metrics -->
+      <div class="row text-center mb-1" *ngFor="let metric of h2hMetrics">
+        <div class="col-4 text-end">
+          {{ metric === 'WinProbability'
+          ? (getH2HValue(details, metric, 1) | number:'1.0-2') + '%'
+          : getH2HValue(details, metric, 1) }}
+        </div>
+
+        <div class="col-4 text-center">
+          {{ metricLabelMap[metric] }}
+        </div>
+
+        <div class="col-4 text-start">
+          {{ metric === 'WinProbability'
+          ? (getH2HValue(details, metric, 2) | number:'1.0-2') + '%'
+          : getH2HValue(details, metric, 2) }}
+        </div>
+      </div>
+
+
+      <hr class="my-3" />
+
+      <!-- H2H Summary Wins -->
+      <div class="row text-center mb-1">
+        <div class="col-4 text-end">{{ getH2HWins(1) }}</div>
+        <div class="col-4 text-center">H2H Wins</div>
+        <div class="col-4 text-start">{{ getH2HWins(2) }}</div>
+      </div>
+    </div>
+
+    <ng-template #loadingOrError>
+      <p *ngIf="loadingDetails">Loading match details...</p>
+      <p *ngIf="!loadingDetails && !summaryData">Failed to load match details.</p>
+    </ng-template>
+  </div>
+</div>

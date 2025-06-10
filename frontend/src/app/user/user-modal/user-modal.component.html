@@ -1,0 +1,52 @@
+<div class="modal-backdrop" appAccessibleClick (accessibleClick)="close()">
+  <div class="modal-content" appTrapFocus [onEscape]="close" (click)="$event.stopPropagation()">
+    <button class="close-button" appAccessibleClick (accessibleClick)="close()">×</button>
+
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+      <h4 class="text-center">User data</h4>
+      <br>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" formControlName="email" readonly />
+      </div>
+      <br>
+      <div class="form-group">
+        <label for="nickname">Username (nickname)</label>
+        <input id="nickname" formControlName="nickname" />
+        <small *ngIf="userForm.controls['nickname']?.errors?.['nicknameTaken']">
+          That username is already taken
+        </small>
+      </div>
+      <br>
+      <div class="form-group">
+        <!-- Prikaz avatara -->
+        <div class="avatar-container">
+          <img *ngIf="!previewUrl && currentUser?.avatarUrl"
+            [src]="currentUser.avatarUrl || 'assets/images/defaultUser.png'" alt="Current avatar"
+            class="avatar-preview" />
+          <img *ngIf="previewUrl" [src]="previewUrl" alt="New avatar" class="avatar-preview" />
+        </div>
+        <br>
+        <!-- Upload gumb -->
+        <div class="avatar-actions">
+          <button type="button" class="link-button" appAccessibleClick (accessibleClick)="fileInput.click()"
+            title="Select a new image (max 2MB, JPG/PNG)">Change avatar</button>
+          <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none" />
+          <button type="button" class="link-button" appAccessibleClick (accessibleClick)="changePassword()">
+            Change Password
+          </button>
+        </div>
+      </div>
+      <br>
+      <button type="submit" [disabled]="userForm.invalid" >Save</button>
+      <br>
+
+      <!-- MESSAGES -->
+      <div class="form-group">
+        <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+        <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      </div>
+
+    </form>
+  </div>
+</div>

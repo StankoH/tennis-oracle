@@ -1,0 +1,40 @@
+<nav id="main-header" class="custom-header border-bottom position-relative py-2">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+
+    <!-- Lijevo -->
+    <div class="d-flex align-items-center gap-3">
+      <a class="navbar-brand fs-4" routerLink="/">🏆</a>
+      <div class="navbar-nav d-flex flex-row gap-3">
+        <a class="nav-link" routerLink="/matches">Matches</a>
+        <a class="nav-link" routerLink="/players">Players</a>
+        <a class="nav-link" routerLink="/tournaments">Tournaments</a>
+      </div>
+    </div>
+
+    <!-- Centar – sada apsolutno centriran -->
+    <div class="brand-title position-absolute start-50 translate-middle-x fw-bold fs-3 text-secondary">
+      Tennis Oracle
+    </div>
+
+    <!-- Desno -->
+    <div class="navbar-nav d-flex flex-row gap-3">
+      <ng-container *ngIf="!isLoggedIn; else loggedIn">
+        <button class="btn p-0 me-3" (click)="openLoginModal()">{{ 'login' | translate }}</button>
+        <button class="btn p-0 me-3" (click)="openRegisterModal()">{{ 'register' | translate }}</button>
+      </ng-container>
+
+      <ng-template #loggedIn>
+        <div class="d-flex align-items-center gap-2">
+          <span class="fw-semibold">Wellcome {{ userDisplayName }}</span>
+          <img [src]="user?.avatarUrl || 'assets/images/defaultUser.png'" alt="Avatar" class="rounded-circle"
+            style="width: 40px; height: 40px; cursor: pointer;" (click)="openUserModal()" />
+        </div>
+        <button class="btn p-0 me-3" (click)="logout()">{{ 'logout' | translate }}</button>
+      </ng-template>
+    </div>
+  </div>
+</nav>
+
+<app-register *ngIf="showRegisterModal" (closed)="closeRegisterModal()" />
+<app-login *ngIf="showLoginModal" (closed)="closeLoginModal()" />
+<app-user-modal *ngIf="showUserModal" (closed)="closeUserModal()" (updated)="user = $event"> />
