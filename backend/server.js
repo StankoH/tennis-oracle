@@ -19,13 +19,18 @@ import mongoose from 'mongoose';
 import Match from './models/match.model.js';
 import matchCollectionRoutes from './routes/match.routes.js';
 import tournamentEventDayRoutes from "./routes/tournamentEventDay.routes.js";
-import matchDetailsRoutes  from "./routes/matchdetails.routes.js";
+import matchDetailsRoutes from "./routes/matchdetails.routes.js";
 import trueSkillRoutes from './routes/trueSkill.routes.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5000'
+];
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
@@ -34,7 +39,9 @@ connectDB();
 await Match.syncIndexes();
 
 app.use(cors({
-  origin: 'http://localhost:4200',
+  origin: (origin, cb) =>
+    !origin || allowedOrigins.includes(origin) ? cb(null, true) : cb(new Error('Not allowed')),
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
@@ -61,5 +68,5 @@ app.use((req, res, next) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT} 🚀`);
+  console.log(`Server running on port ${PORT} 🚀`);
 });
