@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://bonzobyte.onrender.com/api'
+    apiUrl: 'https://tennis-backend-x9pq.onrender.com/api'
   };
