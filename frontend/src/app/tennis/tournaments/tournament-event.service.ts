@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { TournamentEvent, TournamentEventApiResponse, TournamentEventDayApiResponse } from '../../tennis/tennis.model';
 
 @Injectable({ providedIn: 'root' })
 export class TournamentEventService {
-  private apiUrl = '/api/tournamentevents';
+  private apiUrl = `${environment.apiUrl}/tournamentevents`;
 
   constructor(private http: HttpClient) { }
 
@@ -32,10 +33,11 @@ export class TournamentEventService {
     return this.http.get<string[]>(`${this.apiUrl}/available-dates`);
   }
 
+  // ✅ Poseban endpoint za dane (odvojen model u backendu)
   getTournamentEventsByDay(date: string): Observable<TournamentEvent[]> {
-    return this.http.get<TournamentEventDayApiResponse>(
-      `/api/tournamenteventdays/by-date/${date}`
-    ).pipe(map(res => res.tournaments));
+    const eventDayUrl = `${environment.apiUrl}/tournamenteventdays/by-date/${date}`;
+    return this.http.get<TournamentEventDayApiResponse>(eventDayUrl).pipe(
+      map(res => res.tournaments)
+    );
   }
-  
 }

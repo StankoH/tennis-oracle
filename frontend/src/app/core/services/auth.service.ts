@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
 import { ResetPasswordResponse } from '../types/auth.types';
 
@@ -10,7 +11,7 @@ import { ResetPasswordResponse } from '../types/auth.types';
 })
 export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(this.hasToken());
-  private apiUrl = 'http://localhost:5000/api/auth';
+  private apiUrl = `${environment.apiUrl}/auth`;
 
   constructor(private http: HttpClient) { }
 
@@ -35,23 +36,23 @@ export class AuthService {
       identifier: credentials.identifier,  // <-- pretvori identifier u email
       password: credentials.password 
     };
-    return this.http.post<{ token: string; user: User }>('/api/auth/login', payload);
+    return this.http.post<{ token: string; user: User }>(`${environment.apiUrl}/auth/login`, payload);
   }
 
   loginWithGoogle(): void {
-    window.location.href = 'http://localhost:5000/api/auth/google';
+    window.location.href = `${environment.apiUrl}/auth/google`;
   }
 
   loginWithFacebook(): void {
-    window.location.href = 'http://localhost:5000/api/auth/facebook';
+    window.location.href = `${environment.apiUrl}/auth/facebook`;
   }
 
   resendVerification(email: string): Observable<unknown> {
-    return this.http.post('/api/auth/resend-verification', { email });
+    return this.http.post(`${environment.apiUrl}/auth/resend-verification`, { email });
   }
 
   contactUs(data: { name: string; email: string; message: string }) {
-    return this.http.post('/api/auth/contact', data);
+    return this.http.post(`${environment.apiUrl}/auth/contact`, data);
   }
 
   private currentUser = new BehaviorSubject<User | null>(this.getUserFromStorage());
@@ -111,7 +112,7 @@ export class AuthService {
   }
 
   sendResetPasswordEmail(email: string) {
-    alert(`${this.apiUrl}/request-reset-password`);
+    // alert(`${this.apiUrl}/request-reset-password`);
     return this.http.post(`${this.apiUrl}/request-reset-password`, { email });
   }
 

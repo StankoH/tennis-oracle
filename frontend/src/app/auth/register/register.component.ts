@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { environment } from '../../../environments/environment';
 import { AccessibleClickDirective } from '../../shared/directives/accessible-click.directive';
 import { TrapFocusDirective } from '../../shared/directives/trap-focus.directive';
 
@@ -50,7 +51,7 @@ export class RegisterComponent {
   
     const { name, email, password } = this.registerForm.value;
   
-    this.http.post('/api/auth/register', { name, email, password }).subscribe({
+    this.http.post(`${environment.apiUrl}/auth/google/auth/register`, { name, email, password }).subscribe({
       next: () => {
         console.log("registracija");
   
@@ -68,7 +69,7 @@ export class RegisterComponent {
         this.successMessage = 'Registration successful. Please check your email to verify your account.';
         this.registerForm.reset();
         this.submitted = false;
-        this.close(); // zatvori modal nakon uspjeha
+        this.close();
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Registration failed.';

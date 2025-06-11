@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -15,15 +16,15 @@ export class OauthSuccessComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
     if (token) {
       localStorage.setItem('token', token);
-  
+
       // ⛑ Dodano: ručni header jer interceptor još ne reagira
-      this.http.get<{ user: User }>('http://localhost:5000/api/auth/me', {
+      this.http.get<{ user: User }>(`${environment.apiUrl}/auth/me`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

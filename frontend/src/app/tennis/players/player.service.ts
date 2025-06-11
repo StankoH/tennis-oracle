@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { PlayerApiResponse } from '../../tennis/tennis.model';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerService {
-  private apiUrl = '/api/players';
+  private apiUrl = `${environment.apiUrl}/players`;
 
   constructor(private http: HttpClient) {}
 
@@ -23,7 +24,6 @@ export class PlayerService {
       sortDirection
     };
 
-    // Ako nije selektirano sve (npr. samo ATP ili samo WTA), šaljemo filter
     if (tournamentTypeIds.length > 0 && tournamentTypeIds.length < 2) {
       params['tournamentTypeIds'] = tournamentTypeIds.join(',');
     }
