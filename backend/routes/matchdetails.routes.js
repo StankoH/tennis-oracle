@@ -1,7 +1,10 @@
-import { Router } from 'express';
-const router = Router();
-import { getMatchDetailsById } from '../controllers/matchdetails.controller.js';
+import fs from 'fs';
+import path from 'path';
 
-router.get('/:matchTPId', getMatchDetailsById);
-console.log('Files here:', fs.readdirSync(path.join(__dirname, '../data/matchDetails')).slice(0,10));
-export default router;
+const debugPath = path.join(process.cwd(), 'backend/data/matchDetails');
+try {
+  const files = fs.readdirSync(debugPath);
+  console.log('🧪 [DEBUG] matchDetails folder contains:', files.slice(0, 10));
+} catch (err) {
+  console.error('🧪 [DEBUG] Failed to read matchDetails folder:', err);
+}
