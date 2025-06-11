@@ -4,6 +4,7 @@ import express, { json, urlencoded } from "express";
 import path from "path";
 import cors from "cors";
 import passport from "passport";
+import fs from 'fs';
 
 import connectDB from "./config/db.js";
 import './config/passport.js';
@@ -90,6 +91,14 @@ const startServer = async () => {
     // ⚠️ Ako koristiš syncIndexes zbog inicijalizacije indeksa – ostavi
     // import Match from './models/match.model.js';
     // await Match.syncIndexes();
+
+    const debugPath = path.join(process.cwd(), 'backend/data/matchDetails');
+    try {
+      const files = fs.readdirSync(debugPath);
+      console.log('🧪 [DEBUG] matchDetails folder contains:', files.slice(0, 10));
+    } catch (err) {
+      console.error('🧪 [DEBUG] Failed to read matchDetails folder:', err);
+    }
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ Server running on 0.0.0.0:${PORT}`);
