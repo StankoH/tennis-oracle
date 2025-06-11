@@ -24,6 +24,7 @@
             "polyfills": [
               "zone.js"
             ],
+            "baseHref": "/tennis-oracle/",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
