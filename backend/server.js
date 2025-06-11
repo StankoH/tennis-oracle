@@ -29,7 +29,7 @@ dotenv.config();
 const app = express();
 
 // ✅ Port koji Render traži da dođe iz okoline
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 // ✅ CORS dopušta samo definirane izvore (GitHub Pages i lokalni dev)
 const allowedOrigins = [
@@ -91,9 +91,10 @@ const startServer = async () => {
     // import Match from './models/match.model.js';
     // await Match.syncIndexes();
 
-    app.listen(PORT, () => {
-      console.log(`✅ Server running on port ${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`✅ Server running on 0.0.0.0:${PORT}`);
     });
+
   } catch (err) {
     console.error('❌ Greška prilikom pokretanja servera:', err.message);
     process.exit(1);
