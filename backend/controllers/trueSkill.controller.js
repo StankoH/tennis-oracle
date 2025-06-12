@@ -3,6 +3,7 @@ import path from "path";
 import { exec } from "child_process";
 import { fileURLToPath } from "url";
 import util from "util";
+import { path7za } from "7zip-bin";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,6 +12,7 @@ const execAsync = util.promisify(exec);
 const TRUESKILL_DIR = path.join(__dirname, "..", "data", "trueskill");
 
 export const extractTrueSkill = async (playerTPId, beforeDate = null) => {
+    console.log(`🔍 Decompressing TS for player ${playerTPId} using: ${sevenZipPath}`);
     const archivePath = path.join(TRUESKILL_DIR, `player-${playerTPId}.json.7z`);
     const jsonPath = path.join(TRUESKILL_DIR, `player-${playerTPId}.json`);
 
@@ -19,8 +21,8 @@ export const extractTrueSkill = async (playerTPId, beforeDate = null) => {
         return [];
     }
 
-    const sevenZipPath = `"C:\\Program Files\\7-Zip\\7z.exe"`;
-
+    // const sevenZipPath = `"C:\\Program Files\\7-Zip\\7z.exe"`;
+    const sevenZipPath = path7za;
     try {
         await execAsync(`${sevenZipPath} e "${archivePath}" -o"${TRUESKILL_DIR}" -y`);
         const raw = fs.readFileSync(jsonPath, "utf-8");
