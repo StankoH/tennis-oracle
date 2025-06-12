@@ -37,6 +37,7 @@ export class MatchService {
   }
 
   getMergedTrueSkillHistory(player1TPId: number, player2TPId: number): Observable<MergedTrueSkillEntry[]> {
+    console.log(`${this.apiUrl}/trueskill/history/merged?player1TPId=${player1TPId}&player2TPId=${player2TPId}`);
     return this.http.get<MergedTrueSkillEntry[]>(`${this.apiUrl}/trueskill/history/merged?player1TPId=${player1TPId}&player2TPId=${player2TPId}`);
   }
 }
