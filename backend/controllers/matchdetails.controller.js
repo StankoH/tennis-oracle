@@ -1,12 +1,12 @@
 import { join } from 'path';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import node7z from 'node-7z';
-import { path7za } from '7zip-bin'; // ← OVO SI ZABORAVIO
+import { path7za } from '7zip-bin';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import axios from 'axios';
 
 const { extractFull } = node7z;
-
 
 export async function getMatchDetailsById(req, res) {
     const __filename = fileURLToPath(import.meta.url);
@@ -17,28 +17,33 @@ export async function getMatchDetailsById(req, res) {
     const jsonPath = join(extractDir, `${matchTPId}.json`);
 
     try {
+        // Ako lokalno NE postoji, pokušaj skinuti s GitHub-a
         if (!existsSync(archivePath)) {
-            return res.status(404).json({ error: 'Match archive not found.' });
+            const githubRawUrl = `https://raw.githubusercontent.com/StankoH/tennis-oracle/main/backend/data/matchDetails/${matchTPId}.json.7z`;
+
+            try {
+                const response = await axios.get(githubRawUrl, { responseType: 'arraybuffer' });
+                writeFileSync(archivePath, response.data);
+                console.log(`Preuzet ${matchTPId}.json.7z s GitHub-a.`);
+            } catch (downloadErr) {
+                return res.status(404).json({ error: 'Match archive not found (local nor GitHub).' });
+            }
         }
 
-        // Kreiraj tmp folder ako ne postoji
+        // Kreiraj tmp folder
         mkdirSync(extractDir, { recursive: true });
 
         // Ekstrakcija
         await new Promise((resolve, reject) => {
-            const extraction = extractFull(archivePath, extractDir, {
-                $bin: path7za,
-            });
-
+            const extraction = extractFull(archivePath, extractDir, { $bin: path7za });
             extraction.on('end', resolve);
             extraction.on('error', reject);
         });
 
-        // Parsiraj JSON
         const raw = readFileSync(jsonPath, 'utf-8');
         const data = JSON.parse(raw);
 
-        // Opcionalno brisanje (cleanup)
+        // Čišćenje
         rmSync(extractDir, { recursive: true, force: true });
 
         res.json(data);
