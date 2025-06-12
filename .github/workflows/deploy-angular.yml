@@ -19,11 +19,11 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
         working-directory: ./frontend
 
       - name: Build Angular app
-        run: npm run build -- --base-href=/tennis-oracle/
+        run: npm run build -- --base-href=/
         working-directory: ./frontend
 
       - name: Create CNAME file
