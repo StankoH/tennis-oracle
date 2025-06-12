@@ -33,6 +33,7 @@ export class MatchService {
   }
 
   getTrueSkillHistory(player1TPId: number, player2TPId: number) {
+    console.log(`${this.apiUrl}/trueskill/history?player1TPId=${player1TPId}&player2TPId=${player2TPId}`);
     return this.http.get<TrueSkillHistoryResponse>(`${this.apiUrl}/trueskill/history?player1TPId=${player1TPId}&player2TPId=${player2TPId}`);
   }
 
