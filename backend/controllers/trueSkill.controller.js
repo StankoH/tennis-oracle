@@ -12,6 +12,7 @@ const execAsync = util.promisify(exec);
 const TRUESKILL_DIR = path.join(__dirname, "..", "data", "trueskill");
 
 export const extractTrueSkill = async (playerTPId, beforeDate = null) => {
+    const sevenZipPath = path7za;
     console.log(`🔍 Decompressing TS for player ${playerTPId} using: ${sevenZipPath}`);
     const archivePath = path.join(TRUESKILL_DIR, `player-${playerTPId}.json.7z`);
     const jsonPath = path.join(TRUESKILL_DIR, `player-${playerTPId}.json`);
@@ -21,8 +22,6 @@ export const extractTrueSkill = async (playerTPId, beforeDate = null) => {
         return [];
     }
 
-    // const sevenZipPath = `"C:\\Program Files\\7-Zip\\7z.exe"`;
-    const sevenZipPath = path7za;
     try {
         await execAsync(`${sevenZipPath} e "${archivePath}" -o"${TRUESKILL_DIR}" -y`);
         const raw = fs.readFileSync(jsonPath, "utf-8");
