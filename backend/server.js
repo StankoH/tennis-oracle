@@ -92,7 +92,7 @@ const startServer = async () => {
     // import Match from './models/match.model.js';
     // await Match.syncIndexes();
 
-    const debugPath = path.join(process.cwd(), 'backend/data/matchDetails');
+    const debugPath = path.join(process.cwd(), 'data/matchDetails');
     try {
       const files = fs.readdirSync(debugPath);
       console.log('🧪 [DEBUG] matchDetails folder contains:', files.slice(0, 10));
