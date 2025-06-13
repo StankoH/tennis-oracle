@@ -34,6 +34,7 @@ const PORT = process.env.PORT || 3000;
 
 // ✅ CORS dopušta samo definirane izvore (GitHub Pages i lokalni dev)
 const allowedOrigins = [
+  'https://www.bonzobyte.com',
   'https://stankoh.github.io',
   'http://localhost:4200',
   'http://localhost:5000'
