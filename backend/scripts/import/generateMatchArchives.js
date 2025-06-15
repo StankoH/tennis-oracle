@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 // 1. Putevi
 const inputCsv = path.join(__dirname, 'data', 'matchDetails.csv');
-const outputDir = path.join(__dirname, '..', '..', 'data', 'matchDetails');
+const outputDir = 'd:\\Development\\My Projects\\TennisOracle\\backend\\data\\matchDetails';
 
 // 2. Konverzija vrijednosti
 function parseValue(value) {
@@ -41,11 +41,17 @@ const processRow = (row) => {
   }
 
   const matchId = matchIdRaw.trim();
-  const matchJson = parseRow(row);
-
-  const tempJsonPath = path.join(outputDir, `${matchId}.json`);
   const archivePath = path.join(outputDir, `${matchId}.json.7z`);
 
+  // ✨ Provjera postoji li već arhiva
+  if (fs.existsSync(archivePath)) {
+    console.log(`⏭️  Arhiva za meč ${matchId} već postoji. Preskačem.`);
+    return;
+  }
+
+  // Ako ne postoji, nastavi s generiranjem
+  const matchJson = parseRow(row);
+  const tempJsonPath = path.join(outputDir, `${matchId}.json`);
   fs.writeFileSync(tempJsonPath, JSON.stringify(matchJson, null, 2));
 
   const sevenZipPath = `"C:\\Program Files\\7-Zip\\7z.exe"`;
