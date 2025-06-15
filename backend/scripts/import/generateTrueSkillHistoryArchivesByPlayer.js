@@ -91,6 +91,12 @@ fs.createReadStream(inputCsv)
       const jsonPath = path.join(outputDir, `player-${playerTPId}.json`);
       const archivePath = `${jsonPath}.7z`;
 
+      // 🧠 Provjera postoji li već arhiva
+      if (fs.existsSync(archivePath)) {
+        console.log(`⏭️  Arhiva za player-${playerTPId} već postoji. Preskačem.`);
+        continue;
+      }
+
       fs.writeFileSync(jsonPath, JSON.stringify(records, null, 2));
 
       exec(`${sevenZipPath} a -t7z "${archivePath}" "${jsonPath}"`, (err) => {
